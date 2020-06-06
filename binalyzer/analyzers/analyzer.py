@@ -36,11 +36,10 @@ class Analyzer(ABC):
 
         self._full_results_file_path = None
         if os.path.isdir(self._results_path):
-            results_file_name = "results_{}".format(time.strftime("%Y%m%d_%0H%0M"))
+            results_file_name = "results_{}".format(time.strftime("%Y%m%d_%0H%0M%0S"))
             self._full_results_file_path = os.path.join(self._results_path, results_file_name)
-        elif os.path.isfile(self._results_path):
-            self._full_results_file_path = os.path.realpath(self._results_path)
-        assert self._full_results_file_path is not None, "full_results_file_path has not been initialized."
+        else:
+            self._full_results_file_path = self._results_path
             
             
 
