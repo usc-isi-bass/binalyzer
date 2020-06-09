@@ -7,5 +7,5 @@ class Analysis(ABC):
     Should return something that implements AnalysisResults
     '''
     @abc.abstractmethod
-    def analyze(self, analysis_targets):
+    def analyze(self, analysis_target):
         pass
