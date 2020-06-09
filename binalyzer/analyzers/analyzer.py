@@ -15,8 +15,31 @@ from binalyzer.result_storage.result_storer import ResultStorer
 TIME_FORMAT = "%H:%M:%S, %9A, %d-%m-%Y"
 
 class Analyzer(ABC):
+    '''
+    A class to run an Analysis on a number of a number of AnalysisTargets
+    '''
 
     def __init__(self, analysis, root_dir=None, elf_list=None, break_limit=None, remove_duplicates=True, results_path=os.getcwd(), timeout=None):
+        '''
+        Parameters
+        ----------
+        analysis : Analysis
+            An object of a type that implements the interface Analysis
+        root_dir : str
+            The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list)
+        elf_list : list
+            A list of strings specifying the file names of the analysis targets. (mutually exclusive with root_dir)
+        break_limist : int
+            An upper bound on the number of AnalysisTargets to generate
+        remove_duplicates : bool
+            Ensure all AnalysisTargets have a unique MD5 hash
+        results_path : str
+            Either a directory or a filename. If a directory, the analysis results will be stored in a file in this directory (the file name will be the time the analysis started).
+            If a filename, the analysis results will be stored in this file.
+            The default is the current working directory.
+        timeout : int
+            The number of seconds after which the analysis of a single AnalysisTarget will be stopped.
+        '''
         self._analysis = analysis
         self._root_dir = root_dir
         self._elf_list = elf_list
@@ -46,10 +69,27 @@ class Analyzer(ABC):
 
     @abc.abstractmethod
     def analyze_targets(self, analysis_targets):
+        '''
+        Apply analyze_target to each of the AnalysisTargets
+
+        Parameters
+        ----------
+        analysis_targets : list
+            A list of AnalysisTargets to analyze.
+        '''
         pass
 
 
     def analyze_target(self, analysis_target):
+        '''
+        Start a process and run the Analysis on analysis_target.
+        The amount of time specified in the timeout parameter of the Analyzer is waited before the process is terminated.
+
+        Parameters
+        ----------
+        analsis_target : AnalysisTarget
+            The target to analyze
+        '''
         results_dict = multiprocessing.Manager().dict()
 
         # Spawn a new process for the analysis so we can timeout it.
@@ -86,6 +126,9 @@ class Analyzer(ABC):
 
 
     def run_analysis(self):
+        '''
+        Start running the analysis.
+        '''
         analysis_targets = []
         print("Generating targets:")
         for i, analysis_target in enumerate(self._target_generator.find_targets()):
