@@ -8,6 +8,8 @@ import json
 
 import multiprocessing
 
+from binalyzer.analyzers.analysis import Analysis
+
 from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch,ElfDiscovererList
 
 from binalyzer.result_storage.result_storer import ResultStorer
@@ -19,7 +21,7 @@ class Analyzer(ABC):
     A class to run an Analysis on a number of a number of AnalysisTargets
     '''
 
-    def __init__(self, analysis, root_dir=None, elf_list=None, break_limit=None, remove_duplicates=True, results_path=os.getcwd(), timeout=None):
+    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list: list=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
         '''
         Parameters
         ----------
