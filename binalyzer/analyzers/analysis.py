@@ -1,10 +1,12 @@
 import abc
 from abc import ABC
 
+from binalyzer.target_discovery.analysis_target import AnalysisTarget
+
 class Analysis(ABC):
 
     @abc.abstractmethod
-    def analyze(self, analysis_target):
+    def analyze(self, analysis_target: AnalysisTarget):
         '''Apply the analysis to analysis_target
 
         Parameters
