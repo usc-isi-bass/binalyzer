@@ -11,6 +11,7 @@ import multiprocessing
 from binalyzer.analyzers.analysis import Analysis
 
 from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch,ElfDiscovererList
+from binalyzer.target_discovery.analysis_target import AnalysisTarget
 
 from binalyzer.result_storage.result_storer import ResultStorer
 
@@ -70,7 +71,7 @@ class Analyzer(ABC):
 
 
     @abc.abstractmethod
-    def analyze_targets(self, analysis_targets):
+    def analyze_targets(self, analysis_targets: list):
         '''
         Apply analyze_target to each of the AnalysisTargets
 
@@ -78,11 +79,16 @@ class Analyzer(ABC):
         ----------
         analysis_targets : list
             A list of AnalysisTargets to analyze.
+
+        Returns
+        -------
+        (AnalysisTarget, AnalysisResult)
+            Return a pair of the target of analysis and its result
         '''
         pass
 
 
-    def analyze_target(self, analysis_target):
+    def analyze_target(self, analysis_target: AnalysisTarget):
         '''
         Start a process and run the Analysis on analysis_target.
         The amount of time specified in the timeout parameter of the Analyzer is waited before the process is terminated.
@@ -91,6 +97,10 @@ class Analyzer(ABC):
         ----------
         analsis_target : AnalysisTarget
             The target to analyze
+        Returns
+        -------
+        (AnalysisTarget, AnalysisResult)
+            Return a pair of the target of analysis and its result
         '''
         results_dict = multiprocessing.Manager().dict()
 
