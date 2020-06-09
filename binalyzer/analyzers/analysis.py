@@ -4,6 +4,9 @@ from abc import ABC
 from binalyzer.target_discovery.analysis_target import AnalysisTarget
 
 class Analysis(ABC):
+    '''
+    An abstract class for an analysis.
+    '''
 
     @abc.abstractmethod
     def analyze(self, analysis_target: AnalysisTarget):
