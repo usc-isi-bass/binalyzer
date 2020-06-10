@@ -6,7 +6,6 @@ import logging
 logging.getLogger('cle').setLevel(logging.CRITICAL)
 
 # Because apparently python only adds the parent directory of the running script to the PATH.
-# We want the parent of the parent to be added, because that's where input_dependence ans hash_table_discovery is
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from binalyzer.analyzers.analysis import Analysis
