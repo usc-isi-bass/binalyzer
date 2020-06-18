@@ -6,21 +6,22 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from binalyzer.analyzers.parallel_analyzer import ParallelAnalyzer
+from binalyzer.util.analyzer_argument_parser import ParallelAnalyzerArgumentParser
 
 from div_zero_check_analysis import DivZeroAnalysis
 
 def main():
-    parser = argparse.ArgumentParser('Check for zero division errors')
-    parser.add_argument('--root_dir', required=True, help='the root directory from where to search for all the elf files')
-    parser.add_argument('--nthreads', default=1, type=int, help='number of processes to use.')
+    analyzer_argument_parser = ParallelAnalyzerArgumentParser()
+
+    parser = argparse.ArgumentParser('Check for zero division errors', parents=[analyzer_argument_parser])
 
     args = parser.parse_args()
     root_dir = args.root_dir
+    elf_list = args.elf_list
     nthreads = args.nthreads
     
     analysis = DivZeroAnalysis()
-    print("Parallel analysis:")
-    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, nthreads=nthreads, results_path='./example_parallel_analysis_results')
+    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, nthreads=nthreads, results_path='./example_parallel_analysis_results')
     par_analyzer.run_analysis()
 
 if __name__ == "__main__":
