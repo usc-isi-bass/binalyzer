@@ -32,7 +32,7 @@ class Analyzer(ABC):
             The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list)
         elf_list : list
             A list of strings specifying the file names of the analysis targets. (mutually exclusive with root_dir)
-        break_limist : int
+        break_limit : int
             An upper bound on the number of AnalysisTargets to generate
         remove_duplicates : bool
             Ensure all AnalysisTargets have a unique MD5 hash
