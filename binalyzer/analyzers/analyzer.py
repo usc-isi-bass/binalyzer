@@ -9,9 +9,11 @@ import json
 import multiprocessing
 
 from binalyzer.analyzers.analysis import Analysis
+from binalyzer.analyzers.analysis_results import ErrorAnalysisResults
 
 from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch,ElfDiscovererList
 from binalyzer.target_discovery.analysis_target import AnalysisTarget
+
 
 from binalyzer.result_storage.result_storer import ResultStorer
 
