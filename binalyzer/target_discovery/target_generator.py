@@ -36,6 +36,7 @@ class TargetGenerator(ABC):
             elif not self._remove_duplicates:
                 target = self._cache[target_file_md5]
                 break_counter += 1
+                yield target
 
     @abc.abstractmethod
     def find_target_file(self):
