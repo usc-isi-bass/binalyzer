@@ -186,6 +186,8 @@ class Analyzer(ABC):
             end='\r'
 
         for tracked_event, tracked_event_val in analysis_result.get_tracked_events().items():
+            if tracked_event_val is None:
+                continue
             if tracked_event in tracked_result_events:
                 tracked_result_events[tracked_event] += tracked_event_val
             else:
