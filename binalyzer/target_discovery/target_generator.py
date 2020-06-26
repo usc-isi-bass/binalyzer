@@ -14,6 +14,7 @@ class TargetGenerator(ABC):
     '''
     @abc.abstractmethod
     def __init__(self, remove_duplicates=True, break_limit=None):
+        self._remove_duplicates = remove_duplicates
         self._break_limit = break_limit
         self._cache = {}
 
@@ -32,7 +33,7 @@ class TargetGenerator(ABC):
                 self._cache[target_file_md5] = target
                 break_counter += 1
                 yield target
-            elif not remove_duplicates:
+            elif not self._remove_duplicates:
                 target = self._cache[target_file_md5]
                 break_counter += 1
 
