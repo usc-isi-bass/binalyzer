@@ -25,7 +25,7 @@ class ElfDiscovererSearch(ElfDiscoverer):
     def find_target_file(self):
         for r, d, f in os.walk(self._root_dir):
             for file_name in f:
-                full_file_path = os.path.join(r, file_name)
+                full_file_path = os.path.abspath(os.path.join(r, file_name))
                 # We don't want to analyze anything that may be somewhere else
                 if not os.path.islink(full_file_path):
                     if self.is_elf_file(full_file_path):
@@ -46,6 +46,7 @@ class ElfDiscovererList(ElfDiscoverer):
                 elf_file_path = line
                 if os.path.isfile(elf_file_path):
                     if self.is_elf_file(elf_file_path):
+                        elf_file_path = os.path.abspath(elf_file_path)
                         yield elf_file_path
                     else:
                         raise Exception("Err in elf list file on line {}: file {} exists, but is not an elf file".format(i, elf_file_path))
