@@ -4,9 +4,9 @@ from abc import ABC
 class AnalysisResults(ABC):
 
     def add_err(self, err):
-        if not hasattr(self, '_errs'):
-            self._errs = []
-        self._errs.append(err)
+        if not hasattr(self, 'errs'):
+            self.errs = []
+        self.errs.append(err)
 
     '''
     Tracked events are anything you want to keep track of while analyzing the targets.
