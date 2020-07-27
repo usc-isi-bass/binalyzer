@@ -1,4 +1,4 @@
-import json
+import jsonpickle
 class ResultStorer():
     
 
@@ -8,7 +8,7 @@ class ResultStorer():
 
     def store(self, analysis_target, analysis_results):
         rsu = ResultStorageUnit(analysis_target, analysis_results)
-        rsu_json = json.dumps(rsu, default=lambda o: o.__dict__)
+        rsu_json = jsonpickle.encode(rsu)
         self._storage_file.write("{}\n".format(rsu_json))
 
     def __enter__(self):
