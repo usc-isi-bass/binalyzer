@@ -162,11 +162,13 @@ class Analyzer(ABC):
         tracked_result_events = {}
         print("Saving results to {}".format(self._full_results_file_path))
         with ResultStorer(self._full_results_file_path) as result_storer:
+            i, analysis_result = 0, None # For if someone runs with no analysis targets
             for i, (analysis_target, analysis_result) in enumerate(self.analyze_targets(analysis_targets)):
                 result_storer.store(analysis_target, analysis_result)
                 self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=False)
 
-        self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=True)
+        if analysis_result is not None:
+            self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=True)
 
         print("Results saved to: {}".format(self._full_results_file_path))
 
