@@ -201,7 +201,7 @@ class Analyzer(ABC):
         start_time_datetime = datetime.datetime.fromtimestamp(time.mktime(start_time))
         end_time_datetime = datetime.datetime.fromtimestamp(time.mktime(end_time))
         time_delta_datetime = end_time_datetime - start_time_datetime
-        seconds = int(time_delta_datetime.seconds)
+        seconds = int(time_delta_datetime.total_seconds)
         days, seconds = divmod(seconds, 86400)
         hours, seconds = divmod(seconds, 3600)
         minutes, seconds = divmod(seconds, 60)
