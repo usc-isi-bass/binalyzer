@@ -169,10 +169,10 @@ class Analyzer(ABC):
             i, analysis_result = 0, None # For if someone runs with no analysis targets
             for i, (analysis_target, analysis_result) in enumerate(self.analyze_targets(analysis_targets)):
                 result_storer.store(analysis_target, analysis_result)
-                self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=False)
+                self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events)
 
-        if analysis_result is not None:
-            self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=True)
+        # Print newline so we don't overwrite last log
+        print("")
 
         print("Results saved to: {}".format(self._full_results_file_path))
 
@@ -184,14 +184,12 @@ class Analyzer(ABC):
                 
             
 
-    def log_progress(self, completed, total, analysis_result, tracked_result_events, done=False):
+    def log_progress(self, completed, total, analysis_result, tracked_result_events):
         time_str = "{:%d %b %Y %H:%M:%S}".format(datetime.datetime.now())
-        if done:
-            end='\r\n'
-        else:
-            end='\r'
+
 
         for tracked_event, tracked_event_val in analysis_result.get_tracked_events().items():
+            print("log_progress: {}".format(analysis_result))
             if tracked_event_val is None:
                 continue
             if tracked_event in tracked_result_events:
@@ -199,7 +197,7 @@ class Analyzer(ABC):
             else:
                 tracked_result_events[tracked_event] = tracked_event_val
             
-        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), end=end)
+        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), end='\r')
 
     def format_time_delta(self, start_time, end_time, short=False):
         start_time_datetime = datetime.datetime.fromtimestamp(time.mktime(start_time))
