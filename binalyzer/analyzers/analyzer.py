@@ -109,6 +109,7 @@ class Analyzer(ABC):
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
         p = multiprocessing.Process(target=self.wrap_analyze_target, args=(analysis_target, results_dict))
+        start_time = datetime.datetime.now()
         p.start()
         if self._timeout is not None:
             p.join(timeout=self._timeout)
@@ -118,6 +119,7 @@ class Analyzer(ABC):
             timeout_occurred = True
             p.terminate()
             p.join()
+        end_time = datetime.datetime.now()
         analysis_results = None
         if 'results' in results_dict:
             analysis_results = results_dict['results']
@@ -127,6 +129,8 @@ class Analyzer(ABC):
             # Try to catch all exceptions and at least return something
             analysis_results = ErrorAnalysisResults("The analysis did not return any results.")
 
+        analysis_results.start_time = start_time
+        analysis_results.end_time = end_time
         if timeout_occurred:
             analysis_results.add_err('timeout')
         
