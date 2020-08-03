@@ -3,6 +3,10 @@ from abc import ABC
 
 class AnalysisResults(ABC):
 
+    def __init__(self):
+        self.start_time = None
+        self.end_time = None
+
     def add_err(self, err):
         if not hasattr(self, 'errs'):
             self.errs = []
