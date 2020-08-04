@@ -204,7 +204,7 @@ class Analyzer(ABC):
             else:
                 tracked_result_events[tracked_event] = tracked_event_val
             
-        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), end='\r')
+        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), flush=True, end='\r')
 
     def format_time_delta(self, start_time, end_time, short=False):
         start_time_datetime = datetime.datetime.fromtimestamp(time.mktime(start_time))
