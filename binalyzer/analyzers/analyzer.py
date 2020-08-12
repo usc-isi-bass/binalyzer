@@ -5,10 +5,13 @@ import os
 import datetime
 import time
 import json
+import signal
 
 import multiprocessing
+import multiprocessing.managers
 
 from binalyzer.analyzers.analysis import Analysis
+from binalyzer.analyzers.analysis_results import AnalysisResults
 from binalyzer.analyzers.analysis_results import ErrorAnalysisResults
 
 from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch,ElfDiscovererList
@@ -68,6 +71,9 @@ class Analyzer(ABC):
             self._full_results_file_path = os.path.abspath(os.path.join(self._results_path, results_file_name))
         else:
             self._full_results_file_path = os.path.abspath(self._results_path)
+
+        results = self._analysis.results_constructor()
+        multiprocessing.managers.BaseManager.register('AnalysisResults', results)
             
             
 
@@ -104,11 +110,13 @@ class Analyzer(ABC):
         (AnalysisTarget, AnalysisResult)
             Return a pair of the target of analysis and its result
         '''
-        results_dict = multiprocessing.Manager().dict()
+        manager = multiprocessing.managers.BaseManager()
+        manager.start()
+        analysis_results = manager.AnalysisResults()
 
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
-        p = multiprocessing.Process(target=self.wrap_analyze_target, args=(analysis_target, results_dict))
+        p = multiprocessing.Process(target=self.wrap_analyze_target, args=(analysis_target, analysis_results))
         start_time = datetime.datetime.now()
         p.start()
         if self._timeout is not None:
@@ -120,14 +128,15 @@ class Analyzer(ABC):
             p.terminate()
             p.join()
         end_time = datetime.datetime.now()
-        analysis_results = None
-        if 'results' in results_dict:
-            analysis_results = results_dict['results']
-        
-        else:
-            # If this happens, an uncaught exception may have occurred that prevented your analysis from returning.
-            # Try to catch all exceptions and at least return something
-            analysis_results = ErrorAnalysisResults("The analysis did not return any results.")
+        analysis_results = analysis_results._getvalue()
+        manager.shutdown()
+        #if 'results' in results_dict:
+        #    analysis_results = results_dict['results']
+        #
+        #else:
+        #    # If this happens, an uncaught exception may have occurred that prevented your analysis from returning.
+        #    # Try to catch all exceptions and at least return something
+        #    analysis_results = ErrorAnalysisResults("The analysis did not return any results.")
 
         analysis_results.start_time = start_time
         analysis_results.end_time = end_time
@@ -138,9 +147,8 @@ class Analyzer(ABC):
         return analysis_target, analysis_results
 
 
-    def wrap_analyze_target(self, analysis_target, results_dict):
-        analysis_results = self._analysis.analyze(analysis_target)
-        results_dict['results'] = analysis_results
+    def wrap_analyze_target(self, analysis_target, analysis_results):
+        self._analysis.analyze(analysis_target, analysis_results)
 
 
     def run_analysis(self):
@@ -169,10 +177,10 @@ class Analyzer(ABC):
             i, analysis_result = 0, None # For if someone runs with no analysis targets
             for i, (analysis_target, analysis_result) in enumerate(self.analyze_targets(analysis_targets)):
                 result_storer.store(analysis_target, analysis_result)
-                self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=False)
+                self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events)
 
-        if analysis_result is not None:
-            self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events, done=True)
+        # Print newline so we don't overwrite last log
+        print("")
 
         print("Results saved to: {}".format(self._full_results_file_path))
 
@@ -184,12 +192,9 @@ class Analyzer(ABC):
                 
             
 
-    def log_progress(self, completed, total, analysis_result, tracked_result_events, done=False):
+    def log_progress(self, completed, total, analysis_result, tracked_result_events):
         time_str = "{:%d %b %Y %H:%M:%S}".format(datetime.datetime.now())
-        if done:
-            end='\r\n'
-        else:
-            end='\r'
+
 
         for tracked_event, tracked_event_val in analysis_result.get_tracked_events().items():
             if tracked_event_val is None:
@@ -199,7 +204,7 @@ class Analyzer(ABC):
             else:
                 tracked_result_events[tracked_event] = tracked_event_val
             
-        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), end=end)
+        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), flush=True, end='\r')
 
     def format_time_delta(self, start_time, end_time, short=False):
         start_time_datetime = datetime.datetime.fromtimestamp(time.mktime(start_time))
