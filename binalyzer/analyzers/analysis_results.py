@@ -27,4 +27,6 @@ class ErrorAnalysisResults(AnalysisResults):
         self.add_err(err)
 
     def get_tracked_events(self):
-        return {}
+        tracked_events = {}
+        tracked_events['timeouts'] = len([e for e in self.errs if 'timeout' in e])
+        return tracked_events

@@ -25,3 +25,9 @@ class Analysis(ABC):
 
         '''
         pass
+
+    @abc.abstractmethod
+    def results_constructor(self):
+        '''Returns the constructor for creating the analysis results object. A blank instance will be passed to analyze where the properties should be populated.
+        '''
+        pass
