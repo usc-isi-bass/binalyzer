@@ -1,6 +1,7 @@
 import abc
 from abc import ABC
 import os
+import sys
 
 from binalyzer.target_discovery.target_generator import TargetGenerator
 
@@ -49,7 +50,9 @@ class ElfDiscovererList(ElfDiscoverer):
                         elf_file_path = os.path.abspath(elf_file_path)
                         yield elf_file_path
                     else:
-                        raise Exception("Err in elf list file on line {}: file {} exists, but is not an elf file".format(i, elf_file_path))
+                        #raise Exception("Err in elf list file on line {}: file {} exists, but is not an elf file".format(i, elf_file_path))
+                        print("Err in elf list file on line {}: file {} exists, but is not an elf file".format(i, elf_file_path), file=sys.stderr)
                 else:
-                    raise Exception("Err in elf list file on line {}: could not find file: {} (please use absolute paths)".format(i, elf_file_path))
+                    #raise Exception("Err in elf list file on line {}: could not find file: {} (please use absolute paths)".format(i, elf_file_path))
+                    print("Err in elf list file on line {}: could not find file: {} (please use absolute paths)".format(i, elf_file_path), file=sys.stderr)
 
