@@ -42,6 +42,8 @@ class ElfDiscovererList(ElfDiscoverer):
         with open(self._elf_list, 'r') as fd:
             for i, line in enumerate(fd):
                 line = line.strip()
+                if len(line) <= 0:
+                    continue
                 if line[0] == '#': # Allows us to put comments in elf list file
                     continue
                 elf_file_path = line
