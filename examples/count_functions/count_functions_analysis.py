@@ -24,8 +24,6 @@ class CountFunctionsAnalysis(Analysis):
             proj = angr.Project(full_target_file_path, auto_load_libs=False)
             cfg = proj.analyses.CFGFast(normalize=True)
             funcs = cfg.functions.items()
-            for func_addr, func in funcs:
-                print("func: {}@0x{:x}".format(func.name, func_addr))
             num_funcs = len(funcs)
             analysis_results.set_num_funcs(num_funcs)
         except Exception as e:
