@@ -34,12 +34,12 @@ class ElfDiscovererSearch(ElfDiscoverer):
 
 class ElfDiscovererList(ElfDiscoverer):
 
-    def __init__(self, elf_list, break_limit=-1):
+    def __init__(self, elf_list_file, break_limit=-1):
         ElfDiscoverer.__init__(self, break_limit=break_limit)
-        self._elf_list = elf_list
+        self._elf_list_file = elf_list_file
 
     def find_target_file(self):
-        with open(self._elf_list, 'r') as fd:
+        with open(self._elf_list_file, 'r') as fd:
             for i, line in enumerate(fd):
                 line = line.strip()
                 if len(line) <= 0:

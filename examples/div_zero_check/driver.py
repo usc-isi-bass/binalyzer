@@ -17,11 +17,11 @@ def main():
 
     args = parser.parse_args()
     root_dir = args.root_dir
-    elf_list = args.elf_list
+    elf_list_file = args.elf_list_file
     nthreads = args.nthreads
     
     analysis = DivZeroAnalysis()
-    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, nthreads=nthreads, results_path='./example_parallel_analysis_results')
+    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list_file=elf_list_file, nthreads=nthreads, results_path='./example_parallel_analysis_results')
     par_analyzer.run_analysis()
 
 if __name__ == "__main__":

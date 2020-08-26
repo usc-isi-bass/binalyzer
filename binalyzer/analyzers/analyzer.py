@@ -27,16 +27,16 @@ class Analyzer(ABC):
     A class to run an Analysis on a number of a number of AnalysisTargets
     '''
 
-    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list: list=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
+    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list_file: list=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
         '''
         Parameters
         ----------
         analysis : Analysis
             An object of a type that implements the interface Analysis
         root_dir : str
-            The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list)
-        elf_list : list
-            A list of strings specifying the file names of the analysis targets. (mutually exclusive with root_dir)
+            The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list_file)
+        elf_list_file : list
+            A file containing a list of strings specifying the file names of the analysis targets. (mutually exclusive with root_dir)
         break_limit : int
             An upper bound on the number of AnalysisTargets to generate
         remove_duplicates : bool
@@ -50,20 +50,20 @@ class Analyzer(ABC):
         '''
         self._analysis = analysis
         self._root_dir = root_dir
-        self._elf_list = elf_list
+        self._elf_list_file = elf_list_file
         self._break_limit = break_limit
         self._remove_duplicates = remove_duplicates
         self._results_path = results_path
         self._timeout = timeout
 
-        if not ((self._root_dir is not None) ^ (self._elf_list is not None)):
-            raise Exception("Invalid analysis options: You must specify exactly one of root or elf_list")
+        if not ((self._root_dir is not None) ^ (self._elf_list_file is not None)):
+            raise Exception("Invalid analysis options: You must specify exactly one of root or elf_list_file")
 
         self._target_generator = None
         if self._root_dir is not None:
             self._target_generator = ElfDiscovererSearch(self._root_dir, break_limit=self._break_limit)
-        elif self._elf_list is not None:
-            self._target_generator = ElfDiscovererList(self._elf_list, break_limit=self._break_limit)
+        elif self._elf_list_file is not None:
+            self._target_generator = ElfDiscovererList(self._elf_list_file, break_limit=self._break_limit)
 
         self._full_results_file_path = None
         if os.path.isdir(self._results_path):
