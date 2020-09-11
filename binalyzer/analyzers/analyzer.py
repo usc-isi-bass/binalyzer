@@ -61,9 +61,9 @@ class Analyzer(ABC):
 
         self._target_generator = None
         if self._root_dir is not None:
-            self._target_generator = ElfDiscovererSearch(self._root_dir, break_limit=self._break_limit)
+            self._target_generator = ElfDiscovererSearch(self._root_dir, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
         elif self._elf_list_file is not None:
-            self._target_generator = ElfDiscovererList(self._elf_list_file, break_limit=self._break_limit)
+            self._target_generator = ElfDiscovererList(self._elf_list_file, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
 
         self._full_results_file_path = None
         if os.path.isdir(self._results_path):

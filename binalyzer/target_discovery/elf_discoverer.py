@@ -16,8 +16,8 @@ class ElfDiscoverer(TargetGenerator):
 
 class ElfDiscovererSearch(ElfDiscoverer):
 
-    def __init__(self, root_dir, break_limit=-1):
-        ElfDiscoverer.__init__(self, break_limit=break_limit)
+    def __init__(self, root_dir, remove_duplicates=True, break_limit=None):
+        ElfDiscoverer.__init__(self, remove_duplicates=remove_duplicates, break_limit=break_limit)
         if not os.path.isdir(root_dir):
             raise Exception("Could not find root directory: {}".format(root_dir))
         self._root_dir = os.path.realpath(root_dir)
@@ -34,8 +34,8 @@ class ElfDiscovererSearch(ElfDiscoverer):
 
 class ElfDiscovererList(ElfDiscoverer):
 
-    def __init__(self, elf_list_file, break_limit=-1):
-        ElfDiscoverer.__init__(self, break_limit=break_limit)
+    def __init__(self, elf_list_file, remove_duplicates=True, break_limit=None):
+        ElfDiscoverer.__init__(self, remove_duplicates=remove_duplicates, break_limit=break_limit)
         self._elf_list_file = elf_list_file
 
     def find_target_file(self):

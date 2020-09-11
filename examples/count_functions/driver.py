@@ -18,14 +18,15 @@ def main():
     args = parser.parse_args()
     root_dir = args.root_dir
     elf_list_file = args.elf_list_file
+    break_limit = args.break_limit
     nthreads = args.nthreads
     
     analysis = CountFunctionsAnalysis()
     print("Sequential analysis:")
-    seq_analyzer = SequentialAnalyzer(analysis, root_dir=root_dir, elf_list_file=elf_list_file, results_path='./example_sequential_analysis_results')
+    seq_analyzer = SequentialAnalyzer(analysis, root_dir=root_dir, elf_list_file=elf_list_file, break_limit=break_limit, results_path='./example_sequential_analysis_results')
     seq_analyzer.run_analysis()
     print("Parallel analysis:")
-    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list_file=elf_list_file, nthreads=nthreads, results_path='./example_parallel_analysis_results')
+    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list_file=elf_list_file, nthreads=nthreads, break_limit=break_limit, results_path='./example_parallel_analysis_results')
     par_analyzer.run_analysis()
 
 if __name__ == "__main__":
