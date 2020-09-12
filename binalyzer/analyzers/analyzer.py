@@ -27,7 +27,7 @@ class Analyzer(ABC):
     A class to run an Analysis on a number of a number of AnalysisTargets
     '''
 
-    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list_file: list=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
+    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list_file: str=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
         '''
         Parameters
         ----------
