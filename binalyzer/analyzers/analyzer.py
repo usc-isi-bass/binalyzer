@@ -35,7 +35,7 @@ class Analyzer(ABC):
             An object of a type that implements the interface Analysis
         root_dir : str
             The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list_file)
-        elf_list_file : list
+        elf_list_file : str
             A file containing a list of strings specifying the file names of the analysis targets. (mutually exclusive with root_dir)
         break_limit : int
             An upper bound on the number of AnalysisTargets to generate
