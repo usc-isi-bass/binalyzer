@@ -60,7 +60,6 @@ class Analyzer(ABC):
         self._timeout = timeout
 
         target_sources = [self._root_dir, self._elf_list_file, self._elf_list]
-        print(target_sources)
 
         if sum([int(src is not None) for src in target_sources]) != 1:
             raise Exception("Invalid analyzer options: You must specify exactly one of root, elf_list, or elf_list_file. We received: {}".format(target_sources))
