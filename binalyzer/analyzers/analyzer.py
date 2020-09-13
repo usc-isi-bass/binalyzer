@@ -185,7 +185,7 @@ class Analyzer(ABC):
             i, analysis_result = 0, None # For if someone runs with no analysis targets
             for i, (analysis_target, analysis_result) in enumerate(self.analyze_targets(analysis_targets)):
                 result_storer.store(analysis_target, analysis_result)
-                self.log_progress(i + 1, analysis_targets_len, analysis_result, tracked_result_events)
+                self.log_progress(global_start_time, i + 1, analysis_targets_len, analysis_result, tracked_result_events)
 
         # Print newline so we don't overwrite last log
         print("")
@@ -200,7 +200,7 @@ class Analyzer(ABC):
                 
             
 
-    def log_progress(self, completed, total, analysis_result, tracked_result_events):
+    def log_progress(self, start_time, completed, total, analysis_result, tracked_result_events):
         time_str = "{:%d %b %Y %H:%M:%S}".format(datetime.datetime.now())
 
 
@@ -212,13 +212,16 @@ class Analyzer(ABC):
             else:
                 tracked_result_events[tracked_event] = tracked_event_val
             
-        print("{}/{} elfs {} | {}".format(completed, total, tracked_result_events, time_str), flush=True, end='\r')
+        time_remaining_s = self.calculate_eta_s(completed, total, start_time)
+        time_remaining_str = self.format_time_seconds(time_remaining_s, short=True)
+        print("{}/{} elfs {} | {} (eta: {})".format(completed, total, tracked_result_events, time_str, time_remaining_str), flush=True, end='\r')
 
     def format_time_delta(self, start_time, end_time, short=False):
-        start_time_datetime = datetime.datetime.fromtimestamp(time.mktime(start_time))
-        end_time_datetime = datetime.datetime.fromtimestamp(time.mktime(end_time))
-        time_delta_datetime = end_time_datetime - start_time_datetime
+        time_delta_datetime = self.calculate_time_delta(start_time, end_time)
         seconds = int(time_delta_datetime.total_seconds())
+        return self.format_time_seconds(seconds, short)
+
+    def format_time_seconds(self, seconds, short=False):
         days, seconds = divmod(seconds, 86400)
         hours, seconds = divmod(seconds, 3600)
         minutes, seconds = divmod(seconds, 60)
@@ -226,5 +229,26 @@ class Analyzer(ABC):
                 return "{0}:{1:02d}:{2:02d}:{3:02d}".format(days, hours, minutes, seconds)
         else:
                 return "{0} days, {1} hours, {2:02d} minutes and {3:02d} seconds.".format(days, hours, minutes, seconds)
+
+
+    # Returns number of seconds remaining
+    def calculate_eta_s(self, completed, total, start_time):
+        current_time = time.localtime()
+        duration = self.calculate_time_delta(start_time, current_time)
+        duration_s = duration.total_seconds()
+
+        # We finished "completed" in "duration_s" seconds
+        duration_per_one_s = float(duration_s) / float(completed)
+
+        num_remaining = float(total - completed)
+        duration_remaining_s = num_remaining * duration_per_one_s
+
+        return int(round(duration_remaining_s))
+
+    def calculate_time_delta(self, t1, t2):
+        t1_datetime = datetime.datetime.fromtimestamp(time.mktime(t1))
+        t2_datetime = datetime.datetime.fromtimestamp(time.mktime(t2))
+        time_delta_datetime = t2_datetime - t1_datetime
+        return time_delta_datetime
         
 
