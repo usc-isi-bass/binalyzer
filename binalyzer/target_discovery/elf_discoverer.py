@@ -34,6 +34,23 @@ class ElfDiscovererSearch(ElfDiscoverer):
 
 class ElfDiscovererList(ElfDiscoverer):
 
+    def __init__(self, elf_list, remove_duplicates=True, break_limit=None):
+        ElfDiscoverer.__init__(self, remove_duplicates=remove_duplicates, break_limit=break_limit)
+        self._elf_list = elf_list
+
+    def find_target_file(self):
+        for i, elf_file_path in enumerate(self._elf_list):
+            if os.path.isfile(elf_file_path):
+                if self.is_elf_file(elf_file_path):
+                    elf_file_path = os.path.abspath(elf_file_path)
+                    yield elf_file_path
+                else:
+                    print("Err in elf list: {} exists, but is not an elf file".format(elf_file_path), file=sys.stderr)
+            else:
+                print("Err in elf list: could not find file: {} (please use absolute paths)".format(elf_file_path), file=sys.stderr)
+
+class ElfDiscovererListFile(ElfDiscoverer):
+
     def __init__(self, elf_list_file, remove_duplicates=True, break_limit=None):
         ElfDiscoverer.__init__(self, remove_duplicates=remove_duplicates, break_limit=break_limit)
         self._elf_list_file = elf_list_file
