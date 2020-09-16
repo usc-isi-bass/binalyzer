@@ -31,8 +31,8 @@ def main():
         results_path = './example_parallel_analysis_results'
 
 
-    analysis = DivZeroAnalysis()
-    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, elf_list_file=elf_list_file, break_limit=break_limit, remove_duplicates=remove_duplicates, results_path=results_path, cached_results_path=cached_results_path, timeout=timeout, nthreads=nthreads)
+    analysis = DivZeroAnalysis(cached_results_path=cached_results_path)
+    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, elf_list_file=elf_list_file, break_limit=break_limit, remove_duplicates=remove_duplicates, results_path=results_path, timeout=timeout, nthreads=nthreads)
     par_analyzer.run_analysis()
 
 if __name__ == "__main__":
