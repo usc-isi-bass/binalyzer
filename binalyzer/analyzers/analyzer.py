@@ -139,7 +139,6 @@ class Analyzer(ABC):
         manager.shutdown()
 
         # If the results were cached, use the cached times instead
-        print(analysis_results.get_cached_from())
         if analysis_results.get_cached_from() is None:
             analysis_results.set_start_time(start_time)
             analysis_results.set_end_time(end_time)
