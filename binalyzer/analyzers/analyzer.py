@@ -147,8 +147,10 @@ class Analyzer(ABC):
         analysis_results = analysis_results._getvalue()
         manager.shutdown()
 
-        analysis_results.start_time = start_time
-        analysis_results.end_time = end_time
+        # If the results were cached, use the cached times instead
+        if analysis_results.cached_from is None:
+            analysis_results.start_time = start_time
+            analysis_results.end_time = end_time
         if timeout_occurred:
             analysis_results.add_err('timeout')
         
@@ -164,8 +166,8 @@ class Analyzer(ABC):
         else:
             cached_analysis_results = self._results_cache[file_md5]
             analysis_results.copy_from(cached_analysis_results)
-            if analysis_results.cached_from is None and self._cached_results_path is not None:
-                analysis_results.cached_from = os.path.basename(self._cached_results_path)
+            if analysis_results._getvalue().cached_from is None and self._cached_results_path is not None:
+                analysis_results.set_cached_from(os.path.basename(self._cached_results_path))
 
 
     def run_analysis(self):
@@ -209,10 +211,10 @@ class Analyzer(ABC):
     def _build_cache(self, cached_results_path):
         dummy_results = self._analysis.results_constructor()
         result_reader = ResultReader(cached_results_path)
-        for result_storage_unit in readult_reader.read():
+        for result_storage_unit in result_reader.read():
             analysis_target = result_storage_unit.analysis_target
             analysis_results = result_storage_unit.analysis_results
-            assert type(analysis_results) == type(dummy_results), "We have cached results of type {}, but this analysis generates results of type {}".format(type(analysis_results), type(dummy_results))
+            assert type(analysis_results) == dummy_results, "We have cached results of type {}, but this analysis generates results of type {}".format(type(analysis_results), dummy_results)
             file_md5 = analysis_target.file_md5
             if file_md5 in self._results_cache:
                 print("WARN: We already have cached results for: {} (MD5: {})".format(analysis_target.file_name, file_md5), file=sys.stderr)
