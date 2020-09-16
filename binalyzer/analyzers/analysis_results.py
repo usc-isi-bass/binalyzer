@@ -14,6 +14,9 @@ class AnalysisResults(ABC):
     def set_end_time(self, end_time):
         self.end_time = end_time
 
+    def get_cached_from(self):
+        return self.cached_from
+
     def set_cached_from(self, cached_from):
         self.cached_from = cached_from
 
