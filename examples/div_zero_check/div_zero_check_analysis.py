@@ -19,7 +19,7 @@ class DivZeroAnalysis(Analysis):
 
     def results_constructor(self):
         return DivZeroAnalysisResults
-    
+
     def analyze(self, analysis_target, analysis_results):
         try:
             full_target_file_path = analysis_target.full_file_path
@@ -71,7 +71,7 @@ class DivZeroAnalysis(Analysis):
                                 analysis_results.add_div_stmt_check((start_node.addr, div_stmt, str(div_vex_stmt), tmp_divisor, zero_check))
                         except Exception as e:
                             analysis_results.add_err("error in break_statement: {}".format(str(e)))
-                        
+
 
 
                     start_state.inspect.b('statement', when=angr.BP_BEFORE, action=break_statement)
@@ -82,7 +82,7 @@ class DivZeroAnalysis(Analysis):
                 #if i > 100:
                 #    break
 
-                    
+
         except Exception as e:
             analysis_results.add_err(str(e))
 
@@ -114,7 +114,7 @@ class DivZeroAnalysis(Analysis):
                         div_stmts.append(DivStmt(node.addr, stmt_idx))
                         break
         return div_stmts
-                        
+
 
 class DivStmt:
     def __init__(self, block_addr, stmt_idx):
@@ -143,3 +143,12 @@ class DivZeroAnalysisResults(AnalysisResults):
 
     def add_err(self, err):
         self.errs.append(err)
+
+    def copy_from_inner(self, other_analysis_results):
+
+        self.set_div_stmts(other_analysis_results.div_stmts)
+        for div_stmt_check in other_analysis_results.div_stmt_checks:
+            self.add_div_stmt_check(div_stmt_check)
+        for err in self.errs:
+            self.add_err(err)
+

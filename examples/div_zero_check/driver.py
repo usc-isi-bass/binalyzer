@@ -14,6 +14,7 @@ def main():
     analyzer_argument_parser = ParallelAnalyzerArgumentParser()
 
     parser = argparse.ArgumentParser('Check for zero division errors', parents=[analyzer_argument_parser])
+    parser.add_argument('--cached_results', type=str, required=False, help="A filename containing cached results.")
 
     args = parser.parse_args()
     root_dir = args.root_dir
@@ -22,15 +23,16 @@ def main():
     break_limit = args.break_limit
     remove_duplicates = args.remove_duplicates
     results_path = args.results_path
+    cached_results_path = args.cached_results
     timeout = args.timeout
     nthreads = args.nthreads
 
     if results_path is None:
         results_path = './example_parallel_analysis_results'
-        
-    
+
+
     analysis = DivZeroAnalysis()
-    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, elf_list_file=elf_list_file, break_limit=break_limit, remove_duplicates=remove_duplicates, results_path=results_path, timeout=timeout, nthreads=nthreads)
+    par_analyzer = ParallelAnalyzer(analysis, root_dir=root_dir, elf_list=elf_list, elf_list_file=elf_list_file, break_limit=break_limit, remove_duplicates=remove_duplicates, results_path=results_path, cached_results_path=cached_results_path, timeout=timeout, nthreads=nthreads)
     par_analyzer.run_analysis()
 
 if __name__ == "__main__":
