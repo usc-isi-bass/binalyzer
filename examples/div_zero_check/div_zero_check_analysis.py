@@ -149,6 +149,6 @@ class DivZeroAnalysisResults(AnalysisResults):
         self.set_div_stmts(other_analysis_results.div_stmts)
         for div_stmt_check in other_analysis_results.div_stmt_checks:
             self.add_div_stmt_check(div_stmt_check)
-        for err in self.errs:
+        for err in other_analysis_results.errs:
             self.add_err(err)
 

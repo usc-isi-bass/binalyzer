@@ -53,6 +53,6 @@ class CountFunctionsAnalysisResults(AnalysisResults):
     def copy_from_inner(self, other_analysis_results):
 
         self.set_num_funcs(other_analysis_results.num_funcs)
-        for err in self.errs:
+        for err in other_analysis_results.errs:
             self.add_err(err)
 
