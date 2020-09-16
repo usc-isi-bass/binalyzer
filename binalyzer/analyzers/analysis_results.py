@@ -13,6 +13,13 @@ class AnalysisResults(ABC):
         self.errs.append(err)
 
     '''
+    Copies the results stored in other_analysis_results into this analysis_results.
+    '''
+    @abc.abstractmethod
+    def copy_from(self, other_analysis_results):
+        pass
+
+    '''
     Tracked events are anything you want to keep track of while analyzing the targets.
     For example, if an error occurred during analysis, you can add 'err':1 to the _tracked_event_dictionary.
     This allows the analyzer to calculate the number of errors that occurred up to the current point in analyzing the targets.

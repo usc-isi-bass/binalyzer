@@ -19,6 +19,7 @@ from binalyzer.target_discovery.analysis_target import AnalysisTarget
 
 
 from binalyzer.result_storage.result_storer import ResultStorer
+from binalyzer.result_storage.result_reader import ResultReader
 
 TIME_FORMAT = "%H:%M:%S, %9A, %d-%m-%Y"
 
@@ -27,7 +28,7 @@ class Analyzer(ABC):
     A class to run an Analysis on a number of a number of AnalysisTargets
     '''
 
-    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list: list=None, elf_list_file: str=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
+    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list: list=None, elf_list_file: str=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), cached_results_path: str=None, timeout: int=None):
         '''
         Parameters
         ----------
@@ -47,6 +48,8 @@ class Analyzer(ABC):
             Either a directory or a filename. If a directory, the analysis results will be stored in a file in this directory (the file name will be the time the analysis started).
             If a filename, the analysis results will be stored in this file.
             The default is the current working directory.
+        cached_results_path : str
+            A filename containing the analysis results that should be used as a cache.
         timeout : int
             The number of seconds after which the analysis of a single AnalysisTarget will be stopped.
         '''
@@ -57,6 +60,7 @@ class Analyzer(ABC):
         self._break_limit = break_limit
         self._remove_duplicates = remove_duplicates
         self._results_path = results_path
+        self._cached_results_path = cached_results_path
         self._timeout = timeout
 
         target_sources = [self._root_dir, self._elf_list_file, self._elf_list]
@@ -82,6 +86,10 @@ class Analyzer(ABC):
 
         results = self._analysis.results_constructor()
         multiprocessing.managers.BaseManager.register('AnalysisResults', results)
+
+        self._results_cache = {}
+        if self._cached_results_path is not None:
+            self._build_cache(self._cached_results_path)
             
             
 
@@ -124,7 +132,7 @@ class Analyzer(ABC):
 
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
-        p = multiprocessing.Process(target=self.wrap_analyze_target, args=(analysis_target, analysis_results))
+        p = multiprocessing.Process(target=self.get_cache_or_analyze, args=(analysis_target, analysis_results))
         start_time = datetime.datetime.now()
         p.start()
         if self._timeout is not None:
@@ -138,13 +146,6 @@ class Analyzer(ABC):
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
         manager.shutdown()
-        #if 'results' in results_dict:
-        #    analysis_results = results_dict['results']
-        #
-        #else:
-        #    # If this happens, an uncaught exception may have occurred that prevented your analysis from returning.
-        #    # Try to catch all exceptions and at least return something
-        #    analysis_results = ErrorAnalysisResults("The analysis did not return any results.")
 
         analysis_results.start_time = start_time
         analysis_results.end_time = end_time
@@ -155,8 +156,14 @@ class Analyzer(ABC):
         return analysis_target, analysis_results
 
 
-    def wrap_analyze_target(self, analysis_target, analysis_results):
-        self._analysis.analyze(analysis_target, analysis_results)
+    def get_cache_or_analyze(self, analysis_target, analysis_results):
+        file_md5 = analysis_target.file_md5
+        if file_md5 not in self._results_cache:
+            self._analysis.analyze(analysis_target, analysis_results)
+            self._results_cache[file_md5] = analysis_results
+        else:
+            cached_analysis_results = self._results_cache[file_md5]
+            analysis_results.copy_from(cached_analysis_results)
 
 
     def run_analysis(self):
@@ -170,8 +177,6 @@ class Analyzer(ABC):
             analysis_targets.append(analysis_target)
 
         print("Generated {} targets".format(len(analysis_targets)), end='\r', flush=True)
-
-        # TODO Implement the option for a user to specify a cached results file and remove the targets with cached results from the analysis_targets list
 
         analysis_targets_len = len(analysis_targets)
         print("Analyzing {} elfs".format(analysis_targets_len), end='\r', flush=True)
@@ -198,6 +203,21 @@ class Analyzer(ABC):
         print("Total time: {}".format(global_run_time))
 
                 
+
+    def _build_cache(self, cached_results_path):
+        dummy_results = self._analysis.results_constructor()
+        result_reader = ResultReader(cached_results_path)
+        for result_storage_unit in readult_reader.read():
+            analysis_target = result_storage_unit.analysis_target
+            analysis_results = result_storage_unit.analysis_results
+            assert type(analysis_results) == type(dummy_results), "We have cached results of type {}, but this analysis generates results of type {}".format(type(analysis_results), type(dummy_results))
+            file_md5 = analysis_target.file_md5
+            if file_md5 in self._results_cache:
+                print("WARN: We already have cached results for: {} (MD5: {})".format(analysis_target.file_name, file_md5), file=sys.stderr)
+
+            self._results_cache[file_md5] = analysis_results
+
+
             
 
     def log_progress(self, start_time, completed, total, analysis_result, tracked_result_events):
