@@ -6,6 +6,7 @@ class AnalysisResults(ABC):
     def __init__(self):
         self.start_time = None
         self.end_time = None
+        self.cached_from = None
 
     def add_err(self, err):
         if not hasattr(self, 'errs'):

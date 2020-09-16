@@ -164,6 +164,8 @@ class Analyzer(ABC):
         else:
             cached_analysis_results = self._results_cache[file_md5]
             analysis_results.copy_from(cached_analysis_results)
+            if analysis_results.cached_from is None and self._cached_results_path is not None:
+                analysis_results.cached_from = os.path.basename(self._cached_results_path)
 
 
     def run_analysis(self):
