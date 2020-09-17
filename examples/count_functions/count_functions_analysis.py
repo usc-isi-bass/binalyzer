@@ -15,7 +15,7 @@ class CountFunctionsAnalysis(Analysis):
 
     def results_constructor(self):
         return CountFunctionsAnalysisResults
-    
+
     def analyze(self, analysis_target, analysis_results):
         num_funcs = None
         errs = []
@@ -49,3 +49,10 @@ class CountFunctionsAnalysisResults(AnalysisResults):
         tracked_events['errs'] = len(self.errs)
 
         return tracked_events
+
+    def copy_from_inner(self, other_analysis_results):
+
+        self.set_num_funcs(other_analysis_results.num_funcs)
+        for err in other_analysis_results.errs:
+            self.add_err(err)
+

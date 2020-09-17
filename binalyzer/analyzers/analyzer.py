@@ -83,7 +83,6 @@ class Analyzer(ABC):
         results = self._analysis.results_constructor()
         multiprocessing.managers.BaseManager.register('AnalysisResults', results)
             
-            
 
 
     @abc.abstractmethod
@@ -124,7 +123,7 @@ class Analyzer(ABC):
 
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
-        p = multiprocessing.Process(target=self.wrap_analyze_target, args=(analysis_target, analysis_results))
+        p = multiprocessing.Process(target=self._analysis.get_cache_or_analyze, args=(analysis_target, analysis_results))
         start_time = datetime.datetime.now()
         p.start()
         if self._timeout is not None:
@@ -139,26 +138,16 @@ class Analyzer(ABC):
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
         manager.shutdown()
-        #if 'results' in results_dict:
-        #    analysis_results = results_dict['results']
-        #
-        #else:
-        #    # If this happens, an uncaught exception may have occurred that prevented your analysis from returning.
-        #    # Try to catch all exceptions and at least return something
-        #    analysis_results = ErrorAnalysisResults("The analysis did not return any results.")
 
-        analysis_results.start_time = start_time
-        analysis_results.end_time = end_time
+        # If the results were cached, use the cached times instead
+        if analysis_results.get_cached_from() is None:
+            analysis_results.set_start_time(start_time)
+            analysis_results.set_end_time(end_time)
         if timeout_occurred:
             analysis_results.add_err('timeout')
         
         # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
         return analysis_target, analysis_results
-
-
-    def wrap_analyze_target(self, analysis_target, analysis_results):
-        self._analysis.analyze(analysis_target, analysis_results)
-
 
     def run_analysis(self):
         '''
@@ -171,8 +160,6 @@ class Analyzer(ABC):
             analysis_targets.append(analysis_target)
 
         print("Generated {} targets".format(len(analysis_targets)), end='\r', flush=True)
-
-        # TODO Implement the option for a user to specify a cached results file and remove the targets with cached results from the analysis_targets list
 
         analysis_targets_len = len(analysis_targets)
         print("Analyzing {} elfs".format(analysis_targets_len), end='\r', flush=True)
@@ -199,6 +186,10 @@ class Analyzer(ABC):
         print("Total time: {}".format(global_run_time))
 
                 
+
+
+
+
             
 
     def log_progress(self, start_time, completed, total, analysis_result, tracked_result_events):
