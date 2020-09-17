@@ -82,9 +82,7 @@ class Analyzer(ABC):
 
         results = self._analysis.results_constructor()
         multiprocessing.managers.BaseManager.register('AnalysisResults', results)
-        self._manager = multiprocessing.managers.BaseManager()
-        self._manager.start() # TODO we probably have to shut this down somewhere...
-            
+
 
 
     @abc.abstractmethod
@@ -105,7 +103,7 @@ class Analyzer(ABC):
         pass
 
 
-    def analyze_target(self, analysis_target: AnalysisTarget):
+    def analyze_target(self, args):
         '''
         Start a process and run the Analysis on analysis_target.
         The amount of time specified in the timeout parameter of the Analyzer is waited before the process is terminated.
@@ -119,35 +117,15 @@ class Analyzer(ABC):
         (AnalysisTarget, AnalysisResult)
             Return a pair of the target of analysis and its result
         '''
-        analysis_results = self._manager.AnalysisResults()
+        analysis_target, analysis_results = args
 
-        # Spawn a new process for the analysis so we can timeout it.
-        timeout_occurred = False
-        p = multiprocessing.Process(target=self._analysis.get_cache_or_analyze, args=(analysis_target, analysis_results))
         start_time = datetime.datetime.now()
-        p.start()
-        if self._timeout is not None:
-            p.join(timeout=self._timeout)
-        else:
-            p.join()
-        time.sleep(0.005)
-        if p.is_alive():
-            timeout_occurred = True
-            while p.is_alive():
-                p.terminate()
-                p.join()
-        p.close()
+        analysis_results.set_start_time(start_time)
+        self._analysis.get_cache_or_analyze(analysis_target, analysis_results)
         end_time = datetime.datetime.now()
-        analysis_results = analysis_results._getvalue()
-        #manager.shutdown()
-
-        # If the results were cached, use the cached times instead
         if analysis_results.get_cached_from() is None:
-            analysis_results.set_start_time(start_time)
             analysis_results.set_end_time(end_time)
-        if timeout_occurred:
-            analysis_results.add_err('timeout')
-        
+
         # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
         return analysis_target, analysis_results
 
@@ -187,12 +165,6 @@ class Analyzer(ABC):
         print("Finished: {}".format(time.strftime(TIME_FORMAT, global_end_time)))
         print("Total time: {}".format(global_run_time))
 
-                
-
-
-
-
-            
 
     def log_progress(self, start_time, completed, total, analysis_result, tracked_result_events):
         time_str = "{:%d %b %Y %H:%M:%S}".format(datetime.datetime.now())
@@ -205,7 +177,7 @@ class Analyzer(ABC):
                 tracked_result_events[tracked_event] += tracked_event_val
             else:
                 tracked_result_events[tracked_event] = tracked_event_val
-            
+
         time_remaining_s = self.calculate_eta_s(completed, total, start_time)
         time_remaining_str = self.format_time_seconds(time_remaining_s, short=True)
         print("{}/{} elfs {} | {} (eta: {})".format(completed, total, tracked_result_events, time_str, time_remaining_str), flush=True, end='\r')
@@ -244,5 +216,3 @@ class Analyzer(ABC):
         t2_datetime = datetime.datetime.fromtimestamp(time.mktime(t2))
         time_delta_datetime = t2_datetime - t1_datetime
         return time_delta_datetime
-        
-
