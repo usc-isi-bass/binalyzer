@@ -82,6 +82,8 @@ class Analyzer(ABC):
 
         results = self._analysis.results_constructor()
         multiprocessing.managers.BaseManager.register('AnalysisResults', results)
+        self._manager = multiprocessing.managers.BaseManager()
+        self._manager.start() # TODO we probably have to shut this down somewhere...
             
 
 
@@ -117,9 +119,7 @@ class Analyzer(ABC):
         (AnalysisTarget, AnalysisResult)
             Return a pair of the target of analysis and its result
         '''
-        manager = multiprocessing.managers.BaseManager()
-        manager.start()
-        analysis_results = manager.AnalysisResults()
+        analysis_results = self._manager.AnalysisResults()
 
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
@@ -130,14 +130,16 @@ class Analyzer(ABC):
             p.join(timeout=self._timeout)
         else:
             p.join()
+        time.sleep(0.005)
         if p.is_alive():
             timeout_occurred = True
-            p.kill()
-            p.join()
+            while p.is_alive():
+                p.terminate()
+                p.join()
         p.close()
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
-        manager.shutdown()
+        #manager.shutdown()
 
         # If the results were cached, use the cached times instead
         if analysis_results.get_cached_from() is None:
