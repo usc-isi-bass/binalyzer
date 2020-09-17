@@ -18,9 +18,9 @@ class ParallelAnalyzer(Analyzer):
         self._nthreads = nthreads
 
     def analyze_targets(self, analysis_targets):
-        pool = threading.Pool(self._nthreads)
-        for analysis_target, analysis_results in pool.imap(self.analyze_target, analysis_targets):
-            yield analysis_target, analysis_results
+        with threading.Pool(self._nthreads) as pool:
+            for analysis_target, analysis_results in pool.imap_unordered(self.analyze_target, analysis_targets):
+                yield analysis_target, analysis_results
 
 
 

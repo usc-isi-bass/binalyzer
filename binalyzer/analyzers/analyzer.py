@@ -133,8 +133,9 @@ class Analyzer(ABC):
             p.join()
         if p.is_alive():
             timeout_occurred = True
-            p.terminate()
+            p.kill()
             p.join()
+        p.close()
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
         manager.shutdown()
