@@ -8,7 +8,6 @@ import json
 import signal
 
 import multiprocessing
-import multiprocessing.managers
 
 from binalyzer.analyzers.analysis import Analysis
 from binalyzer.analyzers.analysis_results import AnalysisResults
@@ -80,8 +79,6 @@ class Analyzer(ABC):
         else:
             self._full_results_file_path = os.path.abspath(self._results_path)
 
-        results = self._analysis.results_constructor()
-        multiprocessing.managers.BaseManager.register('AnalysisResults', results)
 
 
 
@@ -125,6 +122,49 @@ class Analyzer(ABC):
         end_time = datetime.datetime.now()
         if analysis_results.get_cached_from() is None:
             analysis_results.set_end_time(end_time)
+
+        # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
+        return analysis_target, analysis_results
+    def analyze_target(self, args):
+        '''
+        Start a process and run the Analysis on analysis_target.
+        The amount of time specified in the timeout parameter of the Analyzer is waited before the process is terminated.
+        Parameters
+        ----------
+        analsis_target : AnalysisTarget
+            The target to analyze
+        Returns
+        -------
+        (AnalysisTarget, AnalysisResult)
+            Return a pair of the target of analysis and its result
+        '''
+        analysis_target, analysis_results = args
+
+        # Spawn a new process for the analysis so we can timeout it.
+        timeout_occurred = False
+        p = multiprocessing.get_context('forkserver').Process(target=self._analysis.get_cache_or_analyze, args=(analysis_target, analysis_results))
+        start_time = datetime.datetime.now()
+        p.start()
+        if self._timeout is not None:
+            p.join(timeout=self._timeout)
+        else:
+            p.join()
+        time.sleep(0.005)
+        if p.is_alive():
+            timeout_occurred = True
+            while p.is_alive():
+                p.terminate()
+                p.join()
+        p.close()
+        end_time = datetime.datetime.now()
+        analysis_results = analysis_results._getvalue()
+
+        # If the results were cached, use the cached times instead
+        if analysis_results.get_cached_from() is None:
+            analysis_results.set_start_time(start_time)
+            analysis_results.set_end_time(end_time)
+        if timeout_occurred:
+            analysis_results.add_err('timeout')
 
         # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
         return analysis_target, analysis_results
