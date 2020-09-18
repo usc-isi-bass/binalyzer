@@ -34,11 +34,11 @@ class ParallelAnalyzer(Analyzer):
                 try:
                     analysis_target, analysis_results = next(args)
                     analysis_target, analysis_results = next(map_iter)
-                    analysis_results = analysis_results._getvalue()
                 except StopIteration:
                     break
                 except concurrent.futures.TimeoutError:
                     analysis_results.add_err('timeout')
+                analysis_results = analysis_results._getvalue()
                 yield analysis_target, analysis_results
         manager.shutdown()
 
