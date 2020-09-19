@@ -2,7 +2,11 @@ from abc import ABC
 
 
 import multiprocessing
+import multiprocessing.managers
+import concurrent
 import multiprocessing.dummy as threading
+
+import pebble
 
 from binalyzer.analyzers.analyzer import Analyzer
 from binalyzer.analyzers.analysis_results import ErrorAnalysisResults
@@ -17,10 +21,18 @@ class ParallelAnalyzer(Analyzer):
         Analyzer.__init__(self, analysis, **analysis_options)
         self._nthreads = nthreads
 
+        results = self._analysis.results_constructor()
+        multiprocessing.managers.BaseManager.register('AnalysisResults', results)
+
     def analyze_targets(self, analysis_targets):
-        with threading.Pool(self._nthreads) as pool:
-            for analysis_target, analysis_results in pool.imap_unordered(self.analyze_target, analysis_targets):
-                yield analysis_target, analysis_results
+
+        with multiprocessing.managers.BaseManager() as manager:
+            analysis_results_objects = [manager.AnalysisResults() for i in range(len(analysis_targets))]
+            args = zip(analysis_targets, analysis_results_objects)
+            with threading.Pool(self._nthreads) as pool:
+                for analysis_target, analysis_result in pool.imap_unordered(self.analyze_target, args):
+                        yield analysis_target, analysis_result
+
 
 
 
