@@ -156,7 +156,7 @@ class Analyzer(ABC):
             while p.is_alive():
                 p.terminate()
                 p.join()
-        p.close()
+        #p.close()
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
 
