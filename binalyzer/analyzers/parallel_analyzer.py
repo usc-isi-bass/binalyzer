@@ -27,7 +27,6 @@ class ParallelAnalyzer(Analyzer):
     def analyze_targets(self, analysis_targets):
 
         with multiprocessing.managers.BaseManager() as manager:
-            #manager.start()
             analysis_results_objects = [manager.AnalysisResults() for i in range(len(analysis_targets))]
             args = zip(analysis_targets, analysis_results_objects)
             with threading.Pool(self._nthreads) as pool:

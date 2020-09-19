@@ -79,9 +79,6 @@ class Analyzer(ABC):
         else:
             self._full_results_file_path = os.path.abspath(self._results_path)
 
-
-
-
     @abc.abstractmethod
     def analyze_targets(self, analysis_targets: list):
         '''
@@ -98,7 +95,6 @@ class Analyzer(ABC):
             Return a pair of the target of analysis and its result
         '''
         pass
-
 
     def analyze_target(self, args):
         '''
@@ -125,14 +121,19 @@ class Analyzer(ABC):
 
         # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
         return analysis_target, analysis_results
+
     def analyze_target(self, args):
         '''
         Start a process and run the Analysis on analysis_target.
         The amount of time specified in the timeout parameter of the Analyzer is waited before the process is terminated.
         Parameters
         ----------
-        analsis_target : AnalysisTarget
-            The target to analyze
+        args:
+            Tuple (analysis_target, analysis_results)
+            analsis_target : AnalysisTarget
+                The target to analyze
+            analysis_results : AnalysisResults
+                An empty AnalysisResults object that will be filled during analysis.
         Returns
         -------
         (AnalysisTarget, AnalysisResult)
