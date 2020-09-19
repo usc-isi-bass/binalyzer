@@ -6,8 +6,6 @@ import multiprocessing.managers
 import concurrent
 import multiprocessing.dummy as threading
 
-import pebble
-
 from binalyzer.analyzers.analyzer import Analyzer
 from binalyzer.analyzers.analysis_results import ErrorAnalysisResults
 
