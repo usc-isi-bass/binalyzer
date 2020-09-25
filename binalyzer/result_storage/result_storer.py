@@ -4,7 +4,7 @@ class ResultStorer():
 
     def __init__(self, storage_file_name):
         self._storage_file_name = storage_file_name
-        self._storage_file = open(self._storage_file_name, 'a')
+        self._storage_file = open(self._storage_file_name, 'w')
 
     def store(self, analysis_target, analysis_results):
         rsu = ResultStorageUnit(analysis_target, analysis_results)
