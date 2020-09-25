@@ -24,7 +24,7 @@ class TargetGenerator(ABC):
             if self._break_limit is not None and break_counter >= self._break_limit:
                 break
             target_file_md5 = self.md5_file(full_target_file_path)
-            if target_file_md5 not in self._cache:
+            if not self._remove_duplicates or target_file_md5 not in self._cache:
                 
                 target_file_name = ntpath.basename(full_target_file_path)
                 target_file_size = os.stat(full_target_file_path).st_size
@@ -33,10 +33,11 @@ class TargetGenerator(ABC):
                 self._cache[target_file_md5] = target
                 break_counter += 1
                 yield target
-            elif not self._remove_duplicates:
+            else:
                 target = self._cache[target_file_md5]
                 break_counter += 1
                 yield target
+
 
     @abc.abstractmethod
     def find_target_file(self):
