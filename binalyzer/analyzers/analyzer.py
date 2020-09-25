@@ -8,6 +8,7 @@ import json
 import signal
 
 import multiprocessing
+import multiprocessing.managers
 
 from binalyzer.analyzers.analysis import Analysis
 from binalyzer.analyzers.analysis_results import AnalysisResults
@@ -78,6 +79,9 @@ class Analyzer(ABC):
             self._full_results_file_path = os.path.abspath(os.path.join(self._results_path, results_file_name))
         else:
             self._full_results_file_path = os.path.abspath(self._results_path)
+
+        results = self._analysis.results_constructor()
+        multiprocessing.managers.BaseManager.register('AnalysisResults', results)
 
     @abc.abstractmethod
     def analyze_targets(self, analysis_targets: list):

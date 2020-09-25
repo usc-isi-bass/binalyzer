@@ -19,9 +19,6 @@ class ParallelAnalyzer(Analyzer):
         Analyzer.__init__(self, analysis, **analysis_options)
         self._nthreads = nthreads
 
-        results = self._analysis.results_constructor()
-        multiprocessing.managers.BaseManager.register('AnalysisResults', results)
-
     def analyze_targets(self, analysis_targets):
 
         with multiprocessing.managers.BaseManager() as manager:
