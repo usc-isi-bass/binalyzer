@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import logging
 
 # Because apparently python only adds the parent directory of the running script to the PATH.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -9,6 +10,18 @@ from binalyzer.analyzers.parallel_analyzer import ParallelAnalyzer
 from binalyzer.util.analyzer_argument_parser import ParallelAnalyzerArgumentParser
 
 from crypto_hash_const_detection_analysis import CryptoHashDetectionAnalysis
+
+logging.getLogger('angr').disabled = True
+logging.getLogger('angr').propagate = False
+logging.getLogger('cle').disabled = True
+logging.getLogger('cle').propagate = False
+logging.getLogger('clariy').disabled = True
+logging.getLogger('claripy').propagate = False
+logging.getLogger('pyvex').disabled = True
+logging.getLogger('pyvex').propagate = False
+logging.getLogger('archinfo').disabled = True
+logging.getLogger('archinfo').propagate = False
+
 
 def main():
     analyzer_argument_parser = ParallelAnalyzerArgumentParser()
