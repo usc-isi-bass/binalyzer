@@ -31,7 +31,7 @@ class SortFuncDetectionAnalysis(Analysis):
                     discovered_sort_func = DiscoveredSortFunc(func_name, func_addr, is_recursive, is_plt)
                     results.add_discovered_sort_func(discovered_sort_func)
         except Exception as e:
-            raise e
+            #raise e
             results.add_err(str(e))
             errs = [str(e)]
             analysis_results.errs = errs
