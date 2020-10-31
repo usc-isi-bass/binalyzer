@@ -33,8 +33,6 @@ class SortFuncDetectionAnalysis(Analysis):
         except Exception as e:
             #raise e
             results.add_err(str(e))
-            errs = [str(e)]
-            analysis_results.errs = errs
 
     # Only checks if a function calls itself
     def is_func_recursive(self, func):
