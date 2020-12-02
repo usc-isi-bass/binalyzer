@@ -17,6 +17,7 @@ class AnalyzerArgumentParser(argparse.ArgumentParser):
         binalyzer_arg_group.add_argument('--remove_duplicates', help='Ensure all AnalysisTargets have a unique MD5 hash', type=str2bool, nargs='?', const=True, default=False)
         binalyzer_arg_group.add_argument('--results_path', help='Either a directory or a filename. If a directory, the analysis results will be stored in a file in this directory (the file name will be the time the analysis started). If a filename, the analysis results will be stored in this file. The default is the current working directory.', default=os.getcwd())
         binalyzer_arg_group.add_argument('--timeout', help='The number of seconds after which the analysis of a single AnalysisTarget will be stopped.', type=int, default=None)
+        binalyzer_arg_group.add_argument('--cached_results', type=str, help="A filename containing cached results.")
 
 class SequentialAnalyzerArgumentParser(AnalyzerArgumentParser):
     '''
