@@ -27,7 +27,6 @@ def main():
     analyzer_argument_parser = ParallelAnalyzerArgumentParser()
 
     parser = argparse.ArgumentParser('Search for sort functions by searching "sort" in the symbol name', parents=[analyzer_argument_parser])
-    parser.add_argument('--cached_results', type=str, required=False, help="A filename containing cached results.")
 
     args = parser.parse_args()
     root_dir = args.root_dir
