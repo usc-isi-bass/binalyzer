@@ -14,7 +14,6 @@ from count_functions_analysis import CountFunctionsAnalysis
 def main():
     analyzer_argument_parser = ParallelAnalyzerArgumentParser()
     parser = argparse.ArgumentParser('Count the number of functions in binaries.', parents=[analyzer_argument_parser])
-    parser.add_argument('--cached_results', type=str, required=False, help="A filename containing cached results.")
 
     args = parser.parse_args()
     root_dir = args.root_dir
