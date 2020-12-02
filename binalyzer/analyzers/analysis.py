@@ -62,13 +62,13 @@ class Analysis(ABC):
 
     def _build_cache(self, cached_results_path):
         dummy_results = self.results_constructor()
-        result_reader = ResultReader(cached_results_path)
-        for result_storage_unit in result_reader.read():
-            analysis_target = result_storage_unit.analysis_target
-            analysis_results = result_storage_unit.analysis_results
-            assert type(analysis_results) == dummy_results, "We have cached results of type {}, but this analysis generates results of type {}".format(type(analysis_results), dummy_results)
-            file_md5 = analysis_target.file_md5
-            if file_md5 in self._results_cache:
-                print("WARN: We already have cached results for: {} (MD5: {})".format(analysis_target.file_name, file_md5), file=sys.stderr)
+        with ResultReader(cached_results_path) as result_reader:
+            for result_storage_unit in result_reader.read():
+                analysis_target = result_storage_unit.analysis_target
+                analysis_results = result_storage_unit.analysis_results
+                assert type(analysis_results) == dummy_results, "We have cached results of type {}, but this analysis generates results of type {}".format(type(analysis_results), dummy_results)
+                file_md5 = analysis_target.file_md5
+                if file_md5 in self._results_cache:
+                    print("WARN: We already have cached results for: {} (MD5: {})".format(analysis_target.file_name, file_md5), file=sys.stderr)
 
-            self._results_cache[file_md5] = analysis_results
+                self._results_cache[file_md5] = analysis_results
