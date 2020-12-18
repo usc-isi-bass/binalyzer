@@ -63,7 +63,11 @@ class RegexDetectionAnalysis(Analysis):
                             call_target = func.get_call_target(block_addr)
                             called_func = cfg.functions.function(addr=call_target)
 
-                            called_func_name, called_func_addr = called_func.name, called_func.addr
+                            if called_func is None:
+                                # Why would angr do this?
+                                called_func_name, called_func_addr = '?', call_target
+                            else:
+                                called_func_name, called_func_addr = called_func.name, called_func.addr
 
 
                         detected_regex = DetectedRegex(string, str_addr, insn_addr, block_addr, func.name, func_addr, called_func_name, called_func_addr)
