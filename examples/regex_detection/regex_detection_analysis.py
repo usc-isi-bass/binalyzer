@@ -87,6 +87,11 @@ class RegexDetectionAnalysis(Analysis):
     def string_is_regex(self, string):
         if '\n' in string or '\t' in string:
             return False
+
+        # To reduce the number of strings we find, we search only for regexes with either groups (() or character classes ([)
+        if not ('[' in string or '(' in string):
+            return False
+
         # If it does not contain a operator allowing for unlimited length input strings, we do not care
         if CLOSURE_REGEX.search(string) is None:
             return False
