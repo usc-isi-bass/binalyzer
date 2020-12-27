@@ -5,8 +5,16 @@ import networkx as nx
 
 import angr
 
-logging.getLogger('angr').setLevel(logging.CRITICAL)
-logging.getLogger('cle').setLevel(logging.CRITICAL)
+logging.getLogger('angr').disabled = True
+logging.getLogger('angr').propagate = False
+logging.getLogger('cle').disabled = True
+logging.getLogger('cle').propagate = False
+logging.getLogger('pyvex').disabled = True
+logging.getLogger('pyvex').propagate = False
+logging.getLogger('claripy').disabled = True
+logging.getLogger('claripy').propagate = False
+logging.getLogger('archinfo').disabled = True
+logging.getLogger('archinfo').propagate = False
 
 # Because apparently python only adds the parent directory of the running script to the PATH.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
