@@ -179,12 +179,20 @@ class Analyzer(ABC):
         Start running the analysis.
         '''
         analysis_targets = []
+        analysis_target_md5_set = set()
+        num_duplicate_md5s = 0
         print("Generating targets:")
+        print("Removing duplicate file MD5s: {}".format(self._remove_duplicates))
         for i, analysis_target in enumerate(self._target_generator.find_targets()):
-            print("Generated {} targets".format(i + 1), end='\r', flush=True)
-            analysis_targets.append(analysis_target)
+            file_md5 = analysis_target.file_md5
+            if file_md5 in analysis_target_md5_set:
+                num_duplicate_md5s += 1
+            if not self._remove_duplicates or file_md5 not in analysis_target_md5_set:
+                analysis_targets.append(analysis_target)
+                analysis_target_md5_set.add(file_md5)
+            print("Generated {} targets ({} dups)".format(len(analysis_targets), num_duplicate_md5s), end='\r', flush=True)
 
-        print("Generated {} targets".format(len(analysis_targets)), end='\r', flush=True)
+        print("Generated {} targets ({} dups)".format(len(analysis_targets), num_duplicate_md5s))
 
         analysis_targets_len = len(analysis_targets)
         print("Analyzing {} elfs".format(analysis_targets_len), end='\r', flush=True)
