@@ -147,19 +147,32 @@ class Analyzer(ABC):
 
         # Spawn a new process for the analysis so we can timeout it.
         timeout_occurred = False
-        p = multiprocessing.get_context('forkserver').Process(target=self._analysis.get_cache_or_analyze, args=(analysis_target, analysis_results))
-        start_time = datetime.datetime.now()
-        p.start()
+        def handler(signum, frame):
+            raise TimeoutError("timeout")
+
         if self._timeout is not None:
-            p.join(timeout=self._timeout)
-        else:
-            p.join()
-        time.sleep(0.005)
-        if p.is_alive():
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(self._timeout)
+        try:
+            start_time = datetime.datetime.now()
+            self._analysis.get_cache_or_analyze(analysis_target, analysis_results)
+        except TimeoutError:
             timeout_occurred = True
-            while p.is_alive():
-                p.terminate()
-                p.join()
+        if self._timeout is not None:
+            signal.alarm(0)
+
+        #p = multiprocessing.get_context('forkserver').Process(target=self._analysis.get_cache_or_analyze, args=(analysis_target, analysis_results))
+        #p.start()
+        #if self._timeout is not None:
+        #    p.join(timeout=self._timeout)
+        #else:
+        #    p.join()
+        #time.sleep(0.005)
+        #if p.is_alive():
+        #    timeout_occurred = True
+        #    while p.is_alive():
+        #        p.terminate()
+        #        p.join()
         #p.close()
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
