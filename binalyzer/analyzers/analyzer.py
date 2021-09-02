@@ -171,6 +171,14 @@ class Analyzer(ABC):
         if timeout_occurred:
             analysis_results.add_err('timeout')
 
+        exitcode = p.exitcode
+        if exitcode is None:
+            analysis_results.add_err('exit code is None when process terminated')
+        elif exitcode < 0:
+            analysis_results.add_err('killed by signal: {}'.format(-exitcode))
+        elif exitcode != 0:
+            analysis_results.add_err('exited with code: {}'.format(exitcode))
+
         # We return the analsis target, because for multiprocessed analyzers we cannot be sure which results belong to which input
         return analysis_target, analysis_results
 
