@@ -1,7 +1,5 @@
 import argparse
 import jsonpickle
-import numpy as np
-import matplotlib.pyplot as plt
 
 inf = float('inf')
 ninf = -inf
@@ -22,31 +20,41 @@ def main():
 
     cfg_tot_node_byte_size = 0
 
+    tot_file_size = 0
+
     for results in all_results:
         analysis_target = results.analysis_target
         analysis_results = results.analysis_results
         target_file = analysis_target.full_file_path
         file_size = analysis_target.file_size
         file_name = analysis_target.file_name
+        file_md5 = analysis_target.file_md5
 
-       
         cfg_num_nodes = analysis_results.cfg_num_nodes
+        cfg_num_edges = analysis_results.cfg_num_edges
+        cfg_ave_node_byte_size = analysis_results.cfg_ave_node_byte_size
+
+        if cfg_num_nodes is None or cfg_num_edges is None or cfg_ave_node_byte_size is None:
+            print("ERR: {} ({}) | {} {} {}".format(target_file, file_md5, cfg_num_nodes, cfg_num_edges, cfg_ave_node_byte_size))
+            continue
+
         cfg_tot_num_nodes += cfg_num_nodes
 
-        cfg_num_edges = analysis_results.cfg_num_edges
         cfg_tot_num_edges += cfg_num_edges
 
-        cfg_ave_node_byte_size = analysis_results.cfg_ave_node_byte_size
         cfg_tot_node_byte_size += cfg_ave_node_byte_size
 
-        
+        tot_file_size += file_size
 
 
+
+
+    print("Average file size: {}".format(tot_file_size / num_results))
     print("Average num nodes: {}".format(cfg_tot_num_nodes / num_results))
     print("Average num edges: {}".format(cfg_tot_num_edges / num_results))
     print("Average average node byte size : {}".format(cfg_tot_node_byte_size / num_results))
 
-        
+
 
 
 

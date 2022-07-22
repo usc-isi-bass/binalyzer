@@ -35,14 +35,15 @@ class CfgStatisticsAnalysis(Analysis):
             full_target_file_path = analysis_target.full_file_path
             proj = angr.Project(full_target_file_path, auto_load_libs=False)
             cfg = proj.analyses.CFGFast(normalize=True)
-            cfg_num_nodes = len(cfg.graph.nodes())
+            cfg_num_nodes = cfg.graph.number_of_nodes()
             analysis_results.set_cfg_num_nodes(cfg_num_nodes)
-            cfg_num_edges = len(cfg.graph.edges())
+            cfg_num_edges = cfg.graph.number_of_edges()
             analysis_results.set_cfg_num_edges(cfg_num_edges)
             
             cfg_max_node_byte_size = ninf
             cfg_min_node_byte_size = inf
             tot_node_size = 0
+
             for node in cfg.nodes_iter():
                 node_size = node.size
 
