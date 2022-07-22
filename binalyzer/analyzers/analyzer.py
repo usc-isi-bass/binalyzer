@@ -6,6 +6,7 @@ import datetime
 import time
 import json
 import signal
+import resource
 
 import multiprocessing
 import multiprocessing.managers
@@ -164,10 +165,14 @@ class Analyzer(ABC):
         end_time = datetime.datetime.now()
         analysis_results = analysis_results._getvalue()
 
-        # If the results were cached, use the cached times instead
+        # If the results were cached, use the cached times and memory usage instead (and do not update)
         if analysis_results.get_cached_from() is None:
             analysis_results.set_start_time(start_time)
             analysis_results.set_end_time(end_time)
+
+            rusage = resource.getrusage(resource.RUSAGE_SELF)
+            ru_maxrss = rusage.ru_maxrss
+            analysis_results.set_max_memory_usage(ru_maxrss)
         if timeout_occurred:
             analysis_results.add_err('timeout')
 
