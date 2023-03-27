@@ -14,6 +14,7 @@ from binalyzer.analyzers.analysis import Analysis
 from binalyzer.analyzers.analysis_results import AnalysisResults
 from binalyzer.analyzers.analysis_results import ErrorAnalysisResults
 
+from binalyzer.target_discovery.target_generator import TargetGenerator
 from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch,ElfDiscovererListFile,ElfDiscovererList
 from binalyzer.target_discovery.analysis_target import AnalysisTarget
 
@@ -27,12 +28,14 @@ class Analyzer(ABC):
     A class to run an Analysis on a number of a number of AnalysisTargets
     '''
 
-    def __init__(self, analysis: Analysis, root_dir: str=None, elf_list: list=None, elf_list_file: str=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
+    def __init__(self, analysis: Analysis, target_generator: TargetGenerator=None, root_dir: str=None, elf_list: list=None, elf_list_file: str=None, break_limit: int=None, remove_duplicates: bool=True, results_path: str=os.getcwd(), timeout: int=None):
         '''
         Parameters
         ----------
         analysis : Analysis
             An object of a type that implements the interface Analysis
+        target_generator: TargetGenerator
+            A target generator to create targets for analysis
         root_dir : str
             The root directory from where the search for analysis targets will start. (mutually exclusive with elf_list_file and elf_list)
         elf_list : list
@@ -58,19 +61,24 @@ class Analyzer(ABC):
         self._remove_duplicates = remove_duplicates
         self._results_path = results_path
         self._timeout = timeout
+        
+        if target_generator is not None:
+            self._target_generator = target_generator
 
-        target_sources = [self._root_dir, self._elf_list_file, self._elf_list]
+        else:
+            self._target_generator = None
 
-        if sum([int(src is not None) for src in target_sources]) != 1:
-            raise Exception("Invalid analyzer options: You must specify exactly one of root, elf_list, or elf_list_file. We received: {}".format(target_sources))
+            target_sources = [self._root_dir, self._elf_list_file, self._elf_list]
 
-        self._target_generator = None
-        if self._root_dir is not None:
-            self._target_generator = ElfDiscovererSearch(self._root_dir, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
-        elif self._elf_list is not None:
-            self._target_generator = ElfDiscovererList(self._elf_list, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
-        elif self._elf_list_file is not None:
-            self._target_generator = ElfDiscovererListFile(self._elf_list_file, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
+            if sum([int(src is not None) for src in target_sources]) != 1:
+                raise Exception("Invalid analyzer options: You must specify exactly one of root, elf_list, or elf_list_file. We received: {}".format(target_sources))
+
+            if self._root_dir is not None:
+                self._target_generator = ElfDiscovererSearch(self._root_dir, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
+            elif self._elf_list is not None:
+                self._target_generator = ElfDiscovererList(self._elf_list, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
+            elif self._elf_list_file is not None:
+                self._target_generator = ElfDiscovererListFile(self._elf_list_file, remove_duplicates=self._remove_duplicates, break_limit=self._break_limit)
         assert self._target_generator is not None, "No target generator created for analyzer"
 
         self._full_results_file_path = None
