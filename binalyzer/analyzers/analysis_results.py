@@ -6,6 +6,7 @@ class AnalysisResults(ABC):
     def __init__(self):
         self.start_time = None
         self.end_time = None
+        self.max_memory_usage = None
         self.cached_from = None
 
     def set_start_time(self, start_time):
@@ -13,6 +14,9 @@ class AnalysisResults(ABC):
 
     def set_end_time(self, end_time):
         self.end_time = end_time
+    
+    def set_max_memory_usage(self, max_memory_usage):
+        self.max_memory_usage = max_memory_usage
 
     def get_cached_from(self):
         return self.cached_from
@@ -28,6 +32,7 @@ class AnalysisResults(ABC):
     def copy_from(self, other_analysis_results):
         self.set_start_time(other_analysis_results.start_time)
         self.set_end_time(other_analysis_results.end_time)
+        self.set_max_memory_usage(other_analysis_results.max_memory_usage)
         self.set_cached_from(other_analysis_results.cached_from)
 
         self.copy_from_inner(other_analysis_results)
