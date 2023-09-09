@@ -19,11 +19,13 @@ def main():
         analysis_target = results.analysis_target
         analysis_results = results.analysis_results
         target_file = analysis_target.full_file_path
-        file_name = analysis_target.file_name
         func_addr_to_features = analysis_results.func_addr_to_features
+        print("ELF: {}".format(analysis_target.full_file_path))
 
-        for (func_name, func_addr), features in func_addr_to_features.items():
-            print(features)
+        for func, features in sorted(func_addr_to_features.items(), key=lambda e: e[1].math_fp_stmt_density, reverse=True):
+            print("  Func: {}".format(func))
+            #print("Func {}@0x{:x}".format(func_name, func_addr))
+            print("    FP density: {}".format(features.math_fp_stmt_density))
 
 
 
