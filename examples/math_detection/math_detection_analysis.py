@@ -33,6 +33,8 @@ class MathDetectionAnalysis(Analysis):
             proj = angr.Project(full_target_file_path, auto_load_libs=False)
             self._cfg = proj.analyses.CFGFast(normalize=True)
             for func_addr, func in self._cfg.functions.items():
+                if func.alignment or func.is_plt or func.is_simprocedure:
+                    continue
                 func_name = func.name
                 used_fp_offset_tally, stmts_with_binop_fp_math_exprs, math_fp_stmt_density, math_int_stmt_density = get_fp_features(proj, func)
                 feats = FpFeatures(used_fp_offset_tally, stmts_with_binop_fp_math_exprs, math_fp_stmt_density, math_int_stmt_density)
