@@ -4,9 +4,10 @@ from binalyzer.target_discovery.elf_discoverer import ElfDiscovererSearch
 
 def main():
     parser = argparse.ArgumentParser('Search for ELF files and return their paths.')
-    parser.add_argument('--root_dir', required=True, help='The root directory to search from.')
-    parser.add_argument('--remove_duplicates', required=False, help='Removes duplicate ELFs (up to their MD5 hash).', default=True)
-    parser.add_argument('--break_limit', required=False, type=int, help='An upper bound for the number of ELF files to search for.', default=None)
+    parser.add_argument('--root-dir', required=True, help='The root directory to search from.')
+    parser.add_argument('--remove-duplicates', dest='remove_duplicates', action='store_true', default=True, help='Removes duplicate ELFs (up to their MD5 hash).')
+    parser.add_argument('--no-remove-duplicates', dest='remove_duplicates', action='store_false', help='Do not remove duplicate ELFs (up to their MD5 hash).')
+    parser.add_argument('--break-limit', required=False, type=int, help='An upper bound for the number of ELF files to search for.', default=None)
 
     args = parser.parse_args()
     root_dir = args.root_dir
